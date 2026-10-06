@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1115">
+<title>Spendy</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230f1115'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-family='Arial'>€</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230f1115'/><text x='50' y='68' font-size='52' text-anchor='middle' fill='white' font-family='Arial'>€</text></svg>">
+<style>
+:root{
+  --bg:#0f1115; --card:#171a21; --card2:#1e222b; --line:#262b36;
+  --txt:#f2f4f8; --sub:#9aa3b2; --mut:#5c6675;
+  --acc:#4f8cff; --danger:#ff5c5c; --ok:#3ecf8e;
+  --r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{
+  background:var(--bg);color:var(--txt);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  min-height:100%;max-width:520px;margin:0 auto;
+  padding:env(safe-area-inset-top) 16px calc(96px + env(safe-area-inset-bottom));
+}
+h1{font-size:22px;font-weight:700;letter-spacing:.2px}
+header{display:flex;justify-content:space-between;align-items:center;padding:20px 4px 12px}
+header .sub{color:var(--sub);font-size:13px;margin-top:2px}
+.iconbtn{background:var(--card);border:1px solid var(--line);color:var(--txt);width:40px;height:40px;border-radius:12px;font-size:17px;cursor:pointer}
+.total-card{background:linear-gradient(135deg,#1a2233,#141a26);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-bottom:16px}
+.total-card .lbl{color:var(--sub);font-size:13px}
+.total-card .val{font-size:38px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.total-card .delta{color:var(--mut);font-size:13px;margin-top:4px}
+.composer{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:16px}
+.amount-row{display:flex;align-items:baseline;gap:6px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:12px}
+.amount-row .cur{font-size:28px;color:var(--sub);font-weight:600}
+#amount{flex:1;background:none;border:none;outline:none;color:var(--txt);font-size:44px;font-weight:700;font-variant-numeric:tabular-nums;width:100%}
+#amount::placeholder{color:var(--mut)}
+#note{width:100%;background:none;border:none;outline:none;color:var(--txt);font-size:16px;margin-bottom:12px}
+#note::placeholder{color:var(--mut)}
+.cats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.cat{border:1px solid var(--line);background:var(--card2);color:var(--sub);border-radius:12px;padding:10px 4px;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .12s}
+.cat .e{display:block;font-size:20px;margin-bottom:4px}
+.cat.sel{border-color:var(--acc);color:var(--txt);background:color-mix(in srgb,var(--acc) 14%,var(--card2))}
+.btn{width:100%;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;background:var(--acc);color:#fff}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--card2);color:var(--txt);border:1px solid var(--line)}
+.btn.small{width:auto;padding:10px 16px;font-size:14px}
+.btn.danger{background:transparent;border:1px solid var(--danger);color:var(--danger)}
+.sect{font-size:13px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin:20px 4px 10px}
+.day{color:var(--sub);font-size:13px;font-weight:600;margin:14px 4px 6px}
+.exp{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;animation:pop .18s ease}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.exp .dot{width:36px;height:36px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.exp .mid{flex:1;min-width:0}
+.exp .cname{font-size:14px;font-weight:600}
+.exp .nt{color:var(--mut);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.exp .amt{font-weight:700;font-variant-numeric:tabular-nums}
+.exp .x{background:none;border:none;color:var(--mut);font-size:18px;cursor:pointer;padding:4px 8px}
+.empty{color:var(--mut);text-align:center;padding:32px 0;font-size:14px}
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar-row{display:flex;align-items:center;gap:10px;font-size:13px}
+.bar-row .e{width:24px;text-align:center}
+.bar-row .nm{width:86px;color:var(--sub);font-weight:600}
+.bar-row .track{flex:1;height:8px;border-radius:4px;background:var(--card2);overflow:hidden}
+.bar-row .fill{height:100%;border-radius:4px}
+.bar-row .v{width:74px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.tabs{position:fixed;bottom:0;left:0;right:0;max-width:520px;margin:0 auto;display:flex;background:var(--card);border-top:1px solid var(--line);padding:8px 16px calc(10px + env(safe-area-inset-bottom));z-index:5}
+.tabs button{flex:1;background:none;border:none;color:var(--mut);font-size:12px;font-weight:600;padding:6px;cursor:pointer;border-radius:10px}
+.tabs button.on{color:var(--txt);background:var(--card2)}
+.tabs button span{display:block;font-size:20px;margin-bottom:2px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end;z-index:10}
+.modal.open{display:flex}
+.sheet{background:var(--card);border-radius:18px 18px 0 0;width:100%;max-width:520px;margin:0 auto;padding:20px;max-height:82vh;overflow-y:auto;border-top:1px solid var(--line)}
+.sheet h2{font-size:18px;margin-bottom:16px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;color:var(--sub);margin-bottom:6px;font-weight:600}
+.field input{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--txt);font-size:15px;outline:none}
+.hint{font-size:12px;color:var(--mut);line-height:1.5;margin-bottom:12px}
+.row2{display:flex;gap:8px}
+.sync-status{font-size:13px;margin:8px 0;padding:10px 12px;border-radius:10px;display:none}
+.sync-status.ok{display:block;background:color-mix(in srgb,var(--ok) 12%,transparent);color:var(--ok)}
+.sync-status.err{display:block;background:color-mix(in srgb,var(--danger) 12%,transparent);color:var(--danger)}
+.toast{position:fixed;top:calc(16px + env(safe-area-inset-top));left:50%;transform:translateX(-50%) translateY(-80px);background:var(--card2);border:1px solid var(--line);color:var(--txt);padding:10px 18px;border-radius:12px;font-size:14px;font-weight:600;transition:transform .25s ease;z-index:20}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.view{display:none}
+.view.on{display:block}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Spendy</h1>
+    <div class="sub" id="monthLbl"></div>
+  </div>
+  <button class="iconbtn" onclick="openSettings()" title="Impostazioni">⚙️</button>
+</header>
+
+<div class="total-card">
+  <div class="lbl">Spese di questo mese</div>
+  <div class="val" id="monthTotal">€ 0,00</div>
+  <div class="delta" id="countLbl"></div>
+</div>
+
+<!-- VISTA: AGGIUNGI -->
+<div class="view on" id="view-add">
+  <div class="composer">
+    <div class="amount-row">
+      <span class="cur">€</span>
+      <input id="amount" inputmode="decimal" placeholder="0,00" autocomplete="off">
+    </div>
+    <input id="note" placeholder="Nota (opzionale)">
+    <div class="cats" id="cats"></div>
+    <button class="btn" onclick="addExpense()">Aggiungi spesa</button>
+  </div>
+</div>
+
+<!-- VISTA: STORICO -->
+<div class="view" id="view-list">
+  <div id="list"></div>
+</div>
+
+<!-- VISTA: RIEPILOGO -->
+<div class="view" id="view-stats">
+  <div id="bars" class="bars"></div>
+</div>
+
+<nav class="tabs">
+  <button class="on" id="tab-add" onclick="showView('add')"><span>＋</span>Nuova</button>
+  <button id="tab-list" onclick="showView('list')"><span>≡</span>Storico</button>
+  <button id="tab-stats" onclick="showView('stats')"><span>◔</span>Riepilogo</button>
+</nav>
+
+<!-- MODAL IMPOSTAZIONI -->
+<div class="modal" id="modal" onclick="if(event.target===this)closeSettings()">
+  <div class="sheet">
+    <h2>Impostazioni</h2>
+    <div class="hint">Sincronizzazione Notion (opzionale): crea un'integrazione su <b>notion.so/my-integrations</b>, condividi il tuo database spese con l'integrazione, poi incolla qui token e ID database. Il database deve avere le proprietà: <b>Nome</b> (Titolo), <b>Importo</b> (Numero), <b>Categoria</b> (Select), <b>Data</b> (Data), <b>Nota</b> (Testo).</div>
+    <div class="field"><label>Token integrazione Notion</label><input id="ntoken" type="password" placeholder="secret_..."></div>
+    <div class="field"><label>ID database Notion</label><input id="ndbid" placeholder="32 caratteri..."></div>
+    <div class="sync-status" id="syncmsg"></div>
+    <div class="row2" style="margin-bottom:20px">
+      <button class="btn small" onclick="syncNow()">Sincronizza ora</button>
+      <button class="btn small ghost" onclick="saveNotionCfg()">Salva</button>
+    </div>
+    <div class="field"><label>Dati</label></div>
+    <div class="row2" style="flex-wrap:wrap">
+      <button class="btn small ghost" onclick="exportCSV()">Esporta CSV</button>
+      <button class="btn small ghost" onclick="exportJSON()">Backup</button>
+      <button class="btn small ghost" onclick="document.getElementById('importFile').click()">Ripristina</button>
+      <button class="btn small danger" onclick="wipeAll()">Elimina tutto</button>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+    <div style="height:12px"></div>
+    <button class="btn ghost" onclick="closeSettings()">Chiudi</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS = [
+  {n:'Cibo', e:'🍔', c:'#ff9f43'},
+  {n:'Casa', e:'🏠', c:'#4f8cff'},
+  {n:'Trasporti', e:'🚗', c:'#a55eff'},
+  {n:'Svago', e:'🎬', c:'#ff5c8a'},
+  {n:'Shopping', e:'🛍️', c:'#3ecf8e'},
+  {n:'Altro', e:'📦', c:'#8b95a5'}
+];
+let selCat = 0;
+let expenses = JSON.parse(localStorage.getItem('spendy') || '[]');
+let notionCfg = JSON.parse(localStorage.getItem('spendy-notion') || '{}');
+
+const fmt = new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'});
+const eur = v => fmt.format(v);
+const today = () => new Date().toISOString().slice(0,10);
+
+// --- categorie ---
+const catsEl = document.getElementById('cats');
+CATS.forEach((c,i)=>{
+  const b = document.createElement('button');
+  b.className = 'cat' + (i===0?' sel':'');
+  b.innerHTML = `<span class="e">${c.e}</span>${c.n}`;
+  b.onclick = ()=>{ selCat=i; document.querySelectorAll('.cat').forEach((x,j)=>x.classList.toggle('sel',j===i)); };
+  catsEl.appendChild(b);
+});
+
+// --- aggiungi ---
+function addExpense(){
+  const raw = document.getElementById('amount').value.replace(',','.');
+  const v = parseFloat(raw);
+  if(!v || v<=0){ toast('Inserisci un importo'); return; }
+  expenses.push({id:Date.now(), amount:Math.round(v*100)/100, cat:selCat,
+    note:document.getElementById('note').value.trim(), date:today(), synced:false});
+  save();
+  document.getElementById('amount').value='';
+  document.getElementById('note').value='';
+  document.getElementById('amount').focus();
+  toast('Spesa aggiunta ✓');
+  render();
+  if(notionCfg.token && notionCfg.dbid) syncNow(true);
+}
+
+function delExpense(id){
+  if(!confirm('Eliminare questa spesa?')) return;
+  expenses = expenses.filter(e=>e.id!==id);
+  save(); render();
+}
+
+// --- render ---
+function monthExpenses(){
+  const m = today().slice(0,7);
+  return expenses.filter(e=>e.date.startsWith(m));
+}
+function render(){
+  const me = monthExpenses();
+  document.getElementById('monthTotal').textContent = eur(me.reduce((s,e)=>s+e.amount,0));
+  document.getElementById('countLbl').textContent = me.length + ' spes' + (me.length===1?'a':'e') + ' registrat' + (me.length===1?'a':'e');
+  document.getElementById('monthLbl').textContent = new Date().toLocaleDateString('it-IT',{month:'long', year:'numeric'});
+
+  // storico
+  const list = document.getElementById('list');
+  const sorted = [...expenses].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+  if(!sorted.length){ list.innerHTML = '<div class="empty">Nessuna spesa. Inizia dalla scheda Nuova ✨</div>'; }
+  else{
+    let html='', lastDay='';
+    for(const e of sorted){
+      if(e.date!==lastDay){
+        lastDay=e.date;
+        const d = new Date(e.date+'T12:00:00');
+        const lbl = e.date===today() ? 'Oggi' : d.toLocaleDateString('it-IT',{weekday:'short', day:'numeric', month:'short'});
+        html += `<div class="day">${lbl}</div>`;
+      }
+      const c = CATS[e.cat];
+      html += `<div class="exp">
+        <div class="dot">${c.e}</div>
+        <div class="mid"><div class="cname">${c.n}${e.synced?' <span style="color:var(--mut);font-size:11px">·sync</span>':''}</div>
+        ${e.note?`<div class="nt">${escapeHtml(e.note)}</div>`:''}</div>
+        <div class="amt">${eur(e.amount)}</div>
+        <button class="x" onclick="delExpense(${e.id})">✕</button>
+      </div>`;
+    }
+    list.innerHTML = html;
+  }
+
+  // riepilogo
+  const bars = document.getElementById('bars');
+  const sums = CATS.map((c,i)=>({...c, tot: me.filter(e=>e.cat===i).reduce((s,e)=>s+e.amount,0)})).filter(x=>x.tot>0).sort((a,b)=>b.tot-a.tot);
+  const max = Math.max(...sums.map(s=>s.tot), 1);
+  bars.innerHTML = sums.length ? sums.map(s=>`
+    <div class="bar-row"><span class="e">${s.e}</span><span class="nm">${s.n}</span>
+    <div class="track"><div class="fill" style="width:${s.tot/max*100}%;background:${s.c}"></div></div>
+    <span class="v">${eur(s.tot)}</span></div>`).join('')
+    : '<div class="empty">Nessuna spesa questo mese</div>';
+}
+function escapeHtml(s){ return s.replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+// --- viste ---
+function showView(v){
+  ['add','list','stats'].forEach(x=>{
+    document.getElementById('view-'+x).classList.toggle('on', x===v);
+    document.getElementById('tab-'+x).classList.toggle('on', x===v);
+  });
+}
+
+// --- storage ---
+function save(){ localStorage.setItem('spendy', JSON.stringify(expenses)); }
+
+// --- toast ---
+let toastT;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+// --- impostazioni ---
+function openSettings(){
+  document.getElementById('ntoken').value = notionCfg.token||'';
+  document.getElementById('ndbid').value = notionCfg.dbid||'';
+  document.getElementById('modal').classList.add('open');
+}
+function closeSettings(){ document.getElementById('modal').classList.remove('open'); }
+function saveNotionCfg(){
+  notionCfg = {token:document.getElementById('ntoken').value.trim(), dbid:document.getElementById('ndbid').value.trim().replace(/-/g,'')};
+  localStorage.setItem('spendy-notion', JSON.stringify(notionCfg));
+  toast('Impostazioni salvate');
+}
+
+// --- Notion sync ---
+async function syncNow(silent){
+  if(!notionCfg.token || !notionCfg.dbid){
+    if(!silent) toast('Configura prima Notion nelle impostazioni');
+    return;
+  }
+  const msg = document.getElementById('syncmsg');
+  const pending = expenses.filter(e=>!e.synced);
+  if(!pending.length){ if(!silent){ msg.className='sync-status ok'; msg.textContent='Tutto già sincronizzato ✓'; } return; }
+  let ok = 0;
+  for(const e of pending){
+    try{
+      const r = await fetch('https://api.notion.com/v1/pages', {
+        method:'POST',
+        headers:{ 'Authorization':'Bearer '+notionCfg.token, 'Notion-Version':'2022-06-28', 'Content-Type':'application/json' },
+        body: JSON.stringify({
+          parent:{ database_id: notionCfg.dbid },
+          properties:{
+            'Nome': { title:[{ text:{ content: CATS[e.cat].n + (e.note?' — '+e.note:'') } }] },
+            'Importo': { number: e.amount },
+            'Categoria': { select:{ name: CATS[e.cat].n } },
+            'Data': { date:{ start: e.date } },
+            'Nota': { rich_text:[{ text:{ content: e.note||'' } }] }
+          }
+        })
+      });
+      if(!r.ok) throw new Error(await r.text());
+      e.synced = true; ok++;
+    }catch(err){ console.error(err); }
+  }
+  save(); render();
+  msg.className = 'sync-status ' + (ok===pending.length ? 'ok' : 'err');
+  msg.textContent = ok===pending.length ? `Sincronizzate ${ok} spese su Notion ✓` : `Sincronizzate ${ok}/${pending.length}. Controlla token e ID database.`;
+  if(!silent) toast(msg.textContent);
+}
+
+// --- export / import ---
+function download(name, content, type){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type}));
+  a.download = name; a.click();
+}
+function exportCSV(){
+  const rows = [['Data','Categoria','Nota','Importo','Sincronizzata']].concat(
+    expenses.map(e=>[e.date, CATS[e.cat].n, e.note||'', e.amount.toFixed(2).replace('.',','), e.synced?'si':'no']));
+  download('spese.csv', rows.map(r=>r.join(';')).join('\n'), 'text/csv');
+}
+function exportJSON(){ download('spendy-backup.json', JSON.stringify(expenses, null, 2), 'application/json'); }
+function importJSON(ev){
+  const f = ev.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{ try{ expenses = JSON.parse(r.result); save(); render(); toast('Dati ripristinati ✓'); }catch(e){ toast('File non valido'); } };
+  r.readAsText(f);
+}
+function wipeAll(){
+  if(!confirm('Eliminare TUTTE le spese? Operazione irreversibile.')) return;
+  expenses = []; save(); render(); closeSettings(); toast('Dati eliminati');
+}
+
+// --- avvio ---
+document.getElementById('amount').focus();
+render();
+</script>
+</body>
+</html>
